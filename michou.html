@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Michou - Dans le Club</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .audio-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            z-index: -1;
+            animation: pulse-bg 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse-bg {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+
+        .music-player {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 1.5rem;
+            border-radius: 20px;
+            border: 3px solid #ff00ff;
+            box-shadow: 0 10px 40px rgba(255, 0, 255, 0.6);
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .player-title {
+            color: #00ffff;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .play-btn {
+            background: linear-gradient(45deg, #ff00ff, #00ffff);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            color: #000;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0 auto;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 20px rgba(255, 0, 255, 0.8);
+        }
+
+        .header {
+            background: rgba(0, 0, 0, 0.95);
+            padding: 3rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 5px solid #ff00ff;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 0, 255, 0.3), transparent);
+            animation: rotate 4s linear infinite;
+            top: -50%;
+            left: -50%;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        h1 {
+            font-size: 4rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #ff00ff, #00ffff, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            animation: glow 2s ease-in-out infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes glow {
+            0%, 100% { filter: drop-shadow(0 0 20px rgba(255, 0, 255, 0.8)); }
+            50% { filter: drop-shadow(0 0 40px rgba(0, 255, 255, 0.8)); }
+        }
+
+        .subtitle {
+            font-size: 1.8rem;
+            color: #00ffff;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .photo-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .photo-card {
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 3px solid #ff00ff;
+            box-shadow: 0 10px 40px rgba(255, 0, 255, 0.4);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .photo-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(255, 0, 255, 0.6);
+            border-color: #00ffff;
+        }
+
+        .photo-placeholder {
+            width: 100%;
+            height: 350px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .photo-placeholder::before {
+            content: '🎵';
+            position: absolute;
+            font-size: 8rem;
+            opacity: 0.1;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+
+        .photo-caption {
+            padding: 1.5rem;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        .photo-caption h3 {
+            color: #00ffff;
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero-section {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 3rem;
+            border-radius: 30px;
+            margin: 2rem 0;
+            border: 3px solid rgba(255, 0, 255, 0.5);
+            box-shadow: 0 20px 60px rgba(255, 0, 255, 0.4);
+            text-align: center;
+        }
+
+        .emoji-dance {
+            font-size: 3rem;
+            animation: dance 1s ease-in-out infinite;
+            display: inline-block;
+            margin: 0 0.5rem;
+        }
+
+        @keyframes dance {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-10px) rotate(-5deg); }
+            75% { transform: translateY(-10px) rotate(5deg); }
+        }
+
+        h2 {
+            color: #00ffff;
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+
+        .lyrics-section {
+            background: rgba(0, 0, 0, 0.9);
+            padding: 3rem;
+            border-radius: 20px;
+            margin: 3rem 0;
+            border: 3px solid #ff00ff;
+            box-shadow: 0 15px 50px rgba(255, 0, 255, 0.4);
+        }
+
+        .lyrics-line {
+            font-size: 1.5rem;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: rgba(255, 0, 255, 0.1);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-left: 5px solid #00ffff;
+        }
+
+        .lyrics-line:hover {
+            background: rgba(255, 0, 255, 0.3);
+            transform: translateX(10px);
+            border-left-color: #ff00ff;
+        }
+
+        .info-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.3));
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 20px;
+            border-left: 5px solid #ff00ff;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(255, 0, 255, 0.5);
+        }
+
+        .info-card p {
+            font-size: 1.2rem;
+            line-height: 1.8;
+        }
+
+        footer {
+            background: rgba(0, 0, 0, 0.95);
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+            border-top: 3px solid #ff00ff;
+        }
+
+        .social-icons {
+            font-size: 2rem;
+            margin: 1rem 0;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        .social-icon {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .social-icon:hover {
+            transform: scale(1.3) rotate(10deg);
+        }
+
+        .visualizer {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 5px;
+            height: 50px;
+            margin: 1rem 0;
+        }
+
+        .bar {
+            width: 8px;
+            background: linear-gradient(to top, #ff00ff, #00ffff);
+            border-radius: 5px;
+            animation: wave 1s ease-in-out infinite;
+        }
+
+        .bar:nth-child(1) { animation-delay: 0s; }
+        .bar:nth-child(2) { animation-delay: 0.1s; }
+        .bar:nth-child(3) { animation-delay: 0.2s; }
+        .bar:nth-child(4) { animation-delay: 0.3s; }
+        .bar:nth-child(5) { animation-delay: 0.4s; }
+
+        @keyframes wave {
+            0%, 100% { height: 10px; }
+            50% { height: 40px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="audio-bg"></div>
+
+    <div class="music-player">
+        <div class="player-title">🎵 DANS LE CLUB 🎵</div>
+        <div class="visualizer">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+        <button class="play-btn" onclick="toggleMusic()">
+            <span id="playIcon">▶️</span> <span id="playText">PLAY</span>
+        </button>
+    </div>
+
+    <div class="header">
+        <div class="header-content">
+            <h1>🔥 MICHOU 🔥</h1>
+            <p class="subtitle">Dans le Club</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="hero-section">
+            <span class="emoji-dance">💃</span>
+            <span class="emoji-dance">🕺</span>
+            <span class="emoji-dance">🎉</span>
+            <h2 style="margin-top: 1rem;">Le Hit qui fait Danser la France !</h2>
+            <p style="font-size: 1.3rem; margin-top: 1rem;">La musique qui a explosé sur YouTube et TikTok</p>
+        </div>
+
+        <h2 style="margin-top: 3rem;">📸 GALERIE MICHOU 📸</h2>
+        <div class="photo-gallery">
+            <div class="photo-card">
+                <div class="photo-placeholder">
+                    🎤
+                </div>
+                <div class="photo-caption">
+                    <h3>Michou en Studio</h3>
+                    <p>Création de "Dans le Club"</p>
+                </div>
+            </div>
+
+            <div class="photo-card">
+                <div class="photo-placeholder">
+                    🎮
+                </div>
+                <div class="photo-caption">
+                    <h3>Gaming Session</h3>
+                    <p>Fortnite avec la Team Croûton</p>
+                </div>
+            </div>
+
+            <div class="photo-card">
+                <div class="photo-placeholder">
+                    ⭐
+                </div>
+                <div class="photo-caption">
+                    <h3>Sur Scène</h3>
+                    <p>Performance Live</p>
+                </div>
+            </div>
+
+            <div class="photo-card">
+                <div class="photo-placeholder">
+                    🎬
+                </div>
+                <div class="photo-caption">
+                    <h3>Tournage Clip</h3>
+                    <p>Behind the Scenes</p>
+                </div>
+            </div>
+
+            <div class="photo-card">
+                <div class="photo-placeholder">
+                    🔥
+                </div>
+                <div class="photo-caption">
+                    <h3>Team Croûton</h3>
+                    <p>Avec Inoxtag & Co</p>
+                </div>
+            </div>
+
+            <div class="photo-card">
+                <div class="photo-placeholder">
+                    💜
+                </div>
+                <div class="photo-caption">
+                    <h3>Avec les Fans</h3>
+                    <p>Rencontre Communauté</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="lyrics-section">
+            <h2>🎤 PAROLES</h2>
+            <div class="lyrics-line">🎵 "Dans le club, dans le club..." 🎵</div>
+            <div class="lyrics-line">💥 "On fait la fête toute la nuit" 💥</div>
+            <div class="lyrics-line">🔥 "L'énergie Michou à fond" 🔥</div>
+            <div class="lyrics-line">✨ "Team Croûton représente" ✨</div>
+        </div>
+
+        <div class="info-card">
+            <h2>👑 QUI EST MICHOU ?</h2>
+            <p>
+                Michou (Miguel Mattioli) est un YouTubeur français ultra populaire avec plus de 8 millions d'abonnés ! 
+                Né le 2 octobre 2001 à Amiens, il s'est fait connaître grâce à ses vidéos gaming sur Fortnite et 
+                Minecraft. Membre fondateur de la légendaire Team Croûton avec Inoxtag, Valouzz et LeBouseuh, 
+                Michou partage son univers fun et décalé avec sa communauté.
+            </p>
+        </div>
+
+        <div class="info-card">
+            <h2>🎵 À PROPOS DE "DANS LE CLUB"</h2>
+            <p>
+                "Dans le Club" est le hit qui a propulsé Michou dans l'univers musical ! Sorti en 2020 dans son EP "My Life", 
+                ce morceau énergique aux sonorités modernes est devenu viral sur TikTok et YouTube. Avec ses paroles 
+                entrainantes et son beat qui fait bouger, la chanson incarne parfaitement l'énergie débordante et 
+                l'ambiance festive qui caractérisent Michou. Un véritable hymne pour toute sa génération !
+            </p>
+        </div>
+    </div>
+
+    <footer>
+        <p style="font-size: 1.5rem; font-weight: bold; color: #ff00ff;">🔥 MICHOU - DANS LE CLUB 🔥</p>
+        <div class="social-icons">
+            <span class="social-icon">📱</span>
+            <span class="social-icon">📸</span>
+            <span class="social-icon">🎵</span>
+            <span class="social-icon">🐦</span>
+        </div>
+        <p style="margin-top: 1rem; color: #00ffff;">#DansLeClub #Michou #TeamCroûton</p>
+    </footer>
+
+    <audio id="audioPlayer" loop>
+        <source src="michou.mp3" type="audio/mpeg">
+        Votre navigateur ne supporte pas l'audio HTML5.
+    </audio>
+
+    <script>
+        const audio = document.getElementById('audioPlayer');
+        let isPlaying = false;
+        const bars = document.querySelectorAll('.bar');
+
+        function toggleMusic() {
+            const playIcon = document.getElementById('playIcon');
+            const playText = document.getElementById('playText');
+            const visualizer = document.querySelector('.visualizer');
+            const audioBg = document.querySelector('.audio-bg');
+            
+            isPlaying = !isPlaying;
+            
+            if (isPlaying) {
+                audio.play().catch(err => {
+                    console.error('Erreur de lecture:', err);
+                    alert('❌ Fichier michou.mp3 introuvable ! Assure-toi qu\'il est dans le même dossier que cette page.');
+                    isPlaying = false;
+                    return;
+                });
+                
+                playIcon.textContent = '⏸️';
+                playText.textContent = 'PAUSE';
+                visualizer.style.opacity = '1';
+                
+                // Animation du fond plus intense
+                audioBg.style.animation = 'pulse-bg 0.5s ease-in-out infinite';
+                
+                // Animation des barres
+                bars.forEach((bar, index) => {
+                    bar.style.animationPlayState = 'running';
+                });
+                
+            } else {
+                audio.pause();
+                playIcon.textContent = '▶️';
+                playText.textContent = 'PLAY';
+                visualizer.style.opacity = '0.5';
+                
+                // Animation du fond normale
+                audioBg.style.animation = 'pulse-bg 3s ease-in-out infinite';
+                
+                // Pause des barres
+                bars.forEach(bar => {
+                    bar.style.animationPlayState = 'paused';
+                });
+            }
+        }
+
+        // Initialiser les barres en pause
+        document.addEventListener('DOMContentLoaded', () => {
+            bars.forEach(bar => {
+                bar.style.animationPlayState = 'paused';
+            });
+        });
+
+        // Gestion des erreurs de chargement
+        audio.addEventListener('error', (e) => {
+            alert('⚠️ Impossible de charger michou.mp3. Vérifie que le fichier est bien dans le même dossier !');
+        });
+    </script>
+</body>
+</html>
